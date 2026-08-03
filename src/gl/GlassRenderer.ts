@@ -61,8 +61,9 @@ export class GlassRenderer {
       antialias: false,
       depth: false,
       stencil: false,
-      // Фон меняется каждый кадр, сохранять его между кадрами незачем
-      preserveDrawingBuffer: false,
+      // Сцена рисуется по изменению, а не каждый кадр: без сохранения буфера
+      // браузер мог бы показать пустой холст на композиции без отрисовки
+      preserveDrawingBuffer: true,
       powerPreference: 'low-power',
       failIfMajorPerformanceCaveat: true,
     }) ?? null) as WebGLRenderingContext | null

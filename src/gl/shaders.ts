@@ -7,7 +7,7 @@
  * текстуры, ни одного промежуточного буфера, ни одного чтения из GPU.
  */
 
-export const MAX_PANELS = 10
+export const MAX_PANELS = 8
 
 export const VERTEX_SHADER = /* glsl */ `
 attribute vec2 aPos;
@@ -37,9 +37,13 @@ const vec3 C_ROSE  = vec3(0.941, 0.392, 0.498);
 const vec3 C_SUN2  = vec3(0.992, 0.933, 0.769);
 const vec3 C_ROSE2 = vec3(0.976, 0.667, 0.698);
 
+/** Колокол без exp(): три умножения вместо трансцендентной функции.
+    Форма почти та же, а на мобильном GPU разница ощутима — вызовов девять
+    на пиксель, когда считается преломление. */
 float blob(vec2 uv, vec2 c, float r) {
   vec2 d = (uv - c) / r;
-  return exp(-dot(d, d) * 1.35);
+  float f = max(0.0, 1.0 - dot(d, d) * 0.62);
+  return f * f * f;
 }
 
 /** Фон: диагональный градиент обложки плюс три медленно дрейфующих пятна. */
@@ -122,12 +126,15 @@ void main() {
     float curve = pow(1.0 - depth, 2.6);
 
     vec2 offset = normal * curve * thickness * 2.1;
-    float aberration = 0.07 * curve;
 
-    vec3 refracted;
-    refracted.r = background(px + offset * (1.0 + aberration)).r;
-    refracted.g = background(px + offset).g;
-    refracted.b = background(px + offset * (1.0 - aberration)).b;
+    // Аберрация заметна только у кромки. В глубине панели, где кривизна почти
+    // нулевая, хватает одного расчёта фона вместо трёх.
+    vec3 refracted = background(px + offset);
+    if (curve > 0.05) {
+      float aberration = 0.07 * curve;
+      refracted.r = background(px + offset * (1.0 + aberration)).r;
+      refracted.b = background(px + offset * (1.0 - aberration)).b;
+    }
 
     vec3 glass = mix(refracted, vec3(1.0), tint);
 

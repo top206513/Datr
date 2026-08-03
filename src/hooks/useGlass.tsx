@@ -7,7 +7,7 @@ import {
   supportsRefraction,
   tuneGlass,
 } from '@/lib/liquidGlass'
-import { startTilt } from '@/lib/tilt'
+import { bindTiltTarget, startTilt } from '@/lib/tilt'
 
 interface GlassOptions {
   /** Радиус скругления элемента, px — по нему строится кривая линзы */
@@ -56,9 +56,13 @@ export function useGlass({
   const ref = useRef<HTMLElement | null>(null)
   const [size, setSize] = useState<{ w: number; h: number } | null>(null)
 
-  // Поверхности на фоне отдаёт шейдер, всё остальное — SVG-фильтр
-  const onStage = useContext(GlassModeContext) && enabled && !overlay
-  const active = enabled && !onStage && supportsRefraction()
+  const stageActive = useContext(GlassModeContext)
+  // Поверхности на фоне отдаёт шейдер
+  const onStage = stageActive && enabled && !overlay
+  // Когда сцена работает, фон под оверлеями меняется каждый кадр — SVG-фильтр
+  // пришлось бы пересчитывать столько же раз, и это самое дорогое, что есть
+  // в кадре. Оверлеи в этом режиме довольствуются размытием, кромкой и бликом.
+  const active = enabled && !stageActive && supportsRefraction()
 
   useEffect(() => {
     const node = ref.current
@@ -66,6 +70,14 @@ export function useGlass({
 
     return registerSurface({ el: node, radius, tint, thickness })
   }, [onStage, radius, tint, thickness])
+
+  // Переменные наклона пишутся только в те элементы, что рисуют блик сами
+  useEffect(() => {
+    const node = ref.current
+    if (onStage || !enabled || !node) return
+
+    return bindTiltTarget(node)
+  }, [onStage, enabled])
 
   useLayoutEffect(() => {
     const node = ref.current

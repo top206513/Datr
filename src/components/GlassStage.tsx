@@ -3,8 +3,12 @@ import { GlassRenderer } from '@/gl/GlassRenderer'
 import { collectPanels } from '@/gl/registry'
 import { tilt } from '@/lib/tilt'
 
-/** Верхняя граница плотности пикселей: на 3× телефонах это втрое меньше работы. */
-const MAX_SCALE = 1.5
+/**
+ * Верхняя граница плотности пикселей. Фон гладкий, поэтому лишняя плотность
+ * почти не видна, а стоит линейно: на телефоне с 3× экраном ограничение до 1
+ * это в девять раз меньше пикселей.
+ */
+const MAX_SCALE = matchMedia('(pointer: coarse)').matches ? 1 : 1.5
 const MIN_SCALE = 0.75
 /** Кадр дольше этого — качество вниз; стабильно быстрее — обратно вверх. */
 const SLOW_FRAME = 20
@@ -50,7 +54,11 @@ export function GlassStage({ onReady }: GlassStageProps) {
     let lastActivity = performance.now()
     let frame = 0
     let running = true
-    const started = performance.now()
+    // Собственное время дрейфа: оно идёт, только когда со сценой что-то
+    // происходит, поэтому в покое кадр буквально не меняется
+    let driftTime = 0
+    let lastTiltX = 0
+    let lastTiltY = 0
 
     const loop = (now: number) => {
       frame = requestAnimationFrame(loop)
@@ -60,9 +68,20 @@ export function GlassStage({ onReady }: GlassStageProps) {
       // кадр, иначе стекло отстаёт от своей карточки и «плавает».
       const busy = now - lastActivity < 400
       const delta = now - lastDraw
+      const tiltMoved =
+        Math.abs(tilt.x - lastTiltX) > 0.008 || Math.abs(tilt.y - lastTiltY) > 0.008
 
-      // В покое фон дрейфует медленно — ему хватает 30 кадров в секунду
-      if (!busy && delta < 30) return
+      // Самое дорогое на телефоне — не сама отрисовка холста, а то, что вслед
+      // за ней пересчитывают фильтр все элементы с backdrop-filter поверх.
+      // Поэтому в покое кадр не рисуется вообще: ничего не меняется, значит
+      // и перерисовывать нечего. Раз в секунду — страховочный кадр на случай
+      // сдвигов раскладки, которые мы не отследили.
+      const changed = busy || tiltMoved
+      if (!changed && delta < 1000) return
+
+      if (changed) driftTime += Math.min(delta, 64) / 1000
+      lastTiltX = tilt.x
+      lastTiltY = tilt.y
       lastDraw = now
 
       // Качество подстраиваем только в активном режиме: там цель — 16.7 мс
@@ -84,9 +103,7 @@ export function GlassStage({ onReady }: GlassStageProps) {
       renderer.resize(width, height, scale)
 
       const panels = collectPanels(width, height)
-      const time = reduced ? 0 : (now - started) / 1000
-
-      renderer.render(time, tilt, panels)
+      renderer.render(reduced ? 0 : driftTime, tilt, panels)
     }
 
     const wake = () => {
@@ -103,6 +120,7 @@ export function GlassStage({ onReady }: GlassStageProps) {
     window.addEventListener('scroll', wake, { passive: true })
     window.addEventListener('resize', wake, { passive: true })
     window.addEventListener('pointerdown', wake, { passive: true })
+    window.addEventListener('orientationchange', wake, { passive: true })
     frame = requestAnimationFrame(loop)
 
     const onLost = (event: Event) => {
@@ -117,6 +135,7 @@ export function GlassStage({ onReady }: GlassStageProps) {
       window.removeEventListener('scroll', wake)
       window.removeEventListener('resize', wake)
       window.removeEventListener('pointerdown', wake)
+      window.removeEventListener('orientationchange', wake)
       canvas.removeEventListener('webglcontextlost', onLost)
       renderer.dispose()
     }

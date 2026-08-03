@@ -7,17 +7,53 @@
 
 export const tilt = { x: 0, y: 0 }
 
+/**
+ * Элементы, которым переменные наклона действительно нужны, — те, что рисуют
+ * блик и кромку через CSS.
+ *
+ * Раньше переменные писались в <html>. Они наследуемые, поэтому каждая запись
+ * инвалидировала стиль всего документа: в профиле пересчёт стилей занимал
+ * больше половины времени кадра. Теперь запись идёт только в те узлы, которым
+ * она нужна, и не чаще, чем глаз способен заметить.
+ */
+const targets = new Set<HTMLElement>()
+
+export function bindTiltTarget(el: HTMLElement): () => void {
+  targets.add(el)
+  written = -2
+  return () => {
+    targets.delete(el)
+  }
+}
+
+let written = -2
+let writtenY = -2
+
+function publish(x: number, y: number): void {
+  if (targets.size === 0) return
+  if (Math.abs(x - written) < 0.02 && Math.abs(y - writtenY) < 0.02) return
+
+  written = x
+  writtenY = y
+  const angle = ((Math.atan2(y, x) * 180) / Math.PI - 90).toFixed(1)
+  const tx = x.toFixed(3)
+  const ty = y.toFixed(3)
+
+  for (const el of targets) {
+    el.style.setProperty('--lg-tx', tx)
+    el.style.setProperty('--lg-ty', ty)
+    el.style.setProperty('--lg-a', angle)
+  }
+}
+
 let listeners = 0
 let stop: (() => void) | null = null
 
 function begin(): () => void {
-  const root = document.documentElement
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
   if (reduced) {
-    root.style.setProperty('--lg-tx', '0')
-    root.style.setProperty('--lg-ty', '0')
-    root.style.setProperty('--lg-a', '-45')
+    publish(0, 0)
     return () => {}
   }
 
@@ -42,6 +78,8 @@ function begin(): () => void {
     targetY = clamp((e.beta - 45) / 45)
   }
 
+  let lastPublish = 0
+
   const tick = (now: number) => {
     // Нет ни курсора, ни гироскопа — свет дышит сам
     if (now - lastInput > 2500) {
@@ -50,12 +88,16 @@ function begin(): () => void {
       targetY = Math.cos(t * 0.78) * 0.4
     }
 
+    // Значение для шейдера обновляем каждый кадр: это просто число, ничего
+    // не стоит. В DOM пишем в несколько раз реже — там за каждую запись
+    // платит пересчёт стилей.
     tilt.x += (targetX - tilt.x) * 0.06
     tilt.y += (targetY - tilt.y) * 0.06
 
-    root.style.setProperty('--lg-tx', tilt.x.toFixed(3))
-    root.style.setProperty('--lg-ty', tilt.y.toFixed(3))
-    root.style.setProperty('--lg-a', ((Math.atan2(tilt.y, tilt.x) * 180) / Math.PI - 90).toFixed(1))
+    if (now - lastPublish > 70) {
+      lastPublish = now
+      publish(tilt.x, tilt.y)
+    }
 
     frame = requestAnimationFrame(tick)
   }

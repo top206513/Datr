@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import clsx from 'clsx'
 import { CupidMark } from '@/components/CupidMark'
+import { useGlass } from '@/hooks/useGlass'
 
 const LINKS = [
   { href: '#story', label: 'Замысел' },
@@ -12,6 +13,9 @@ const LINKS = [
 export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [active, setActive] = useState('#story')
+  // Навигация обретает стекло только после прокрутки — до этого она просто текст
+  const nav = useGlass({ radius: 999, enabled: scrolled })
+  const cta = useGlass({ radius: 999 })
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -61,7 +65,9 @@ export function Header() {
             'hidden items-center gap-0.5 rounded-full p-1 transition-all duration-500 md:flex',
             scrolled ? 'glass-thin' : '',
           )}
+          {...nav.props}
         >
+          {scrolled && nav.layers}
           {LINKS.map((link) => (
             <a
               key={link.href}
@@ -81,7 +87,9 @@ export function Header() {
         <a
           href="#countdown"
           className="glass-thin rounded-full px-4 py-2 text-[13px] font-medium text-ink-900 transition hover:bg-white/70"
+          {...cta.props}
         >
+          {cta.layers}
           К свиданию
         </a>
       </div>

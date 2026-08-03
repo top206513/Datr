@@ -10,6 +10,7 @@ import { MusicPlayer } from '@/components/MusicPlayer'
 import { Story } from '@/components/Story'
 import { Section } from '@/components/ui/Section'
 import { LOCATIONS } from '@/data/locations'
+import { useTilt } from '@/hooks/useGlass'
 import { usePersistentState } from '@/hooks/usePersistentState'
 import { STORAGE_KEYS } from '@/lib/storage'
 import { defaultDateTime } from '@/lib/time'
@@ -22,6 +23,8 @@ const INITIAL_PLAN: PlannedDate = {
 }
 
 export default function App() {
+  useTilt()
+
   const [plan, setPlan] = usePersistentState<PlannedDate>(STORAGE_KEYS.plan, INITIAL_PLAN)
   const [favorites, setFavorites] = usePersistentState<string[]>(STORAGE_KEYS.favorites, [])
   const [checked, setChecked] = usePersistentState<string[]>(STORAGE_KEYS.checkedItems, [])

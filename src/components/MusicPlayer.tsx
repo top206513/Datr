@@ -4,6 +4,7 @@ import clsx from 'clsx'
 import { CupidMark } from '@/components/CupidMark'
 import { TRACKS } from '@/data/tracks'
 import { useAudioPlayer } from '@/hooks/useAudioPlayer'
+import { useGlass } from '@/hooks/useGlass'
 import { formatClock } from '@/lib/time'
 
 /** Ползунок: сам инпут прозрачен и лежит поверх нарисованной дорожки. */
@@ -95,6 +96,10 @@ export function MusicPlayer() {
   const player = useAudioPlayer(TRACKS)
   const [expanded, setExpanded] = useState(false)
 
+  // Развёрнутая карточка «толще» пилюли: радиус больше — линза глубже
+  const card = useGlass({ radius: 28 })
+  const pill = useGlass({ radius: 999 })
+
   const progress = player.duration > 0 ? (player.position / player.duration) * 100 : 0
   const left = Math.max(0, player.duration - player.position)
 
@@ -117,7 +122,9 @@ export function MusicPlayer() {
                 exit={{ opacity: 0, y: 16, scale: 0.96 }}
                 transition={{ duration: 0.4, ease: EASE }}
                 className="glass-floating w-full rounded-glass p-3 sm:w-[26rem] sm:p-4"
+                {...card.props}
               >
+                {card.layers}
                 <div className="flex items-start gap-3.5">
                   <span className="glass-inset grid size-14 shrink-0 place-items-center rounded-2xl">
                     <CupidMark className="w-7 text-ink-900" weight={2.6} />
@@ -261,7 +268,9 @@ export function MusicPlayer() {
                 exit={{ opacity: 0, y: 16, scale: 0.96 }}
                 transition={{ duration: 0.4, ease: EASE }}
                 className="glass-floating relative flex items-center gap-2 overflow-hidden rounded-full py-1.5 pl-1.5 pr-2"
+                {...pill.props}
               >
+                {pill.layers}
                 <button
                   type="button"
                   onClick={player.toggle}

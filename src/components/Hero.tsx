@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { CupidMark } from '@/components/CupidMark'
+import { useGlass } from '@/hooks/useGlass'
 import { formatDateLong } from '@/lib/time'
 import type { DateLocation, PlannedDate } from '@/types'
 
@@ -19,6 +20,8 @@ const fadeUp = {
 }
 
 export function Hero({ plan, location }: HeroProps) {
+  const cover = useGlass({ radius: 36 })
+
   return (
     <section
       id="top"
@@ -96,7 +99,9 @@ export function Hero({ plan, location }: HeroProps) {
           animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
           transition={{ duration: 1.1, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
           className="glass mx-auto grid aspect-square w-full max-w-sm place-items-center rounded-glass-lg p-12 lg:max-w-md"
+          {...cover.props}
         >
+          {cover.layers}
           <div className="w-full">
             <p className="text-center text-[0.65rem] font-semibold uppercase tracking-[0.42em] text-ink-700">
               The&nbsp;Beginning

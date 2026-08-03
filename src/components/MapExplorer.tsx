@@ -5,6 +5,7 @@ import { CATEGORY_META, LOCATIONS } from '@/data/locations'
 import { LocationCard } from '@/components/LocationCard'
 import { LocationDialog } from '@/components/LocationDialog'
 import { Section } from '@/components/ui/Section'
+import { useGlass } from '@/hooks/useGlass'
 import { plural } from '@/lib/time'
 import type { LocationCategory } from '@/types'
 
@@ -43,6 +44,9 @@ export function MapExplorer({ favorites, chosenId, onChoose, onToggleFavorite }:
   const [query, setQuery] = useState('')
   const [activeId, setActiveId] = useState<string | null>(null)
   const [openId, setOpenId] = useState<string | null>(null)
+  const filterBar = useGlass({ radius: 999 })
+  const listPanel = useGlass({ radius: 36 })
+  const counter = useGlass({ radius: 24 })
 
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase()
@@ -73,7 +77,8 @@ export function MapExplorer({ favorites, chosenId, onChoose, onToggleFavorite }:
       }
       description="Двенадцать точек на карте города — от кофе перед прогулкой до последнего поезда. Откройте карточку, чтобы увидеть описание, лучшее время и совет, как провести здесь время."
       aside={
-        <div className="glass rounded-3xl px-6 py-5 text-center">
+        <div className="glass rounded-3xl px-6 py-5 text-center" {...counter.props}>
+          {counter.layers}
           <p className="text-4xl font-semibold tabular-nums tracking-tight text-ink-900">
             {visible.length}
           </p>
@@ -84,7 +89,8 @@ export function MapExplorer({ favorites, chosenId, onChoose, onToggleFavorite }:
       }
     >
       <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="glass-thin flex flex-wrap gap-1 rounded-full p-1">
+        <div className="glass-thin flex flex-wrap gap-1 rounded-full p-1" {...filterBar.props}>
+          {filterBar.layers}
           {FILTERS.map((item) => {
             const active = filter === item.key
             return (
@@ -140,7 +146,9 @@ export function MapExplorer({ favorites, chosenId, onChoose, onToggleFavorite }:
         <div
           className="glass max-h-[560px] overflow-y-auto rounded-glass-lg p-2.5 sm:p-3"
           onMouseLeave={() => setActiveId(null)}
+          {...listPanel.props}
         >
+          {listPanel.layers}
           <AnimatePresence mode="popLayout">
             {visible.length > 0 ? (
               <motion.div layout className="flex flex-col gap-1">

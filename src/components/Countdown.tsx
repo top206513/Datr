@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 import clsx from 'clsx'
 import { useCountdown } from '@/hooks/useCountdown'
+import { useGlass } from '@/hooks/useGlass'
 import { formatDateLong, plural, toInputValue } from '@/lib/time'
 import type { DateLocation, PlannedDate } from '@/types'
 
@@ -44,6 +45,7 @@ function TimeCell({ value, label }: { value: number; label: string }) {
 
 export function Countdown({ plan, location, onChange }: CountdownProps) {
   const [editing, setEditing] = useState(false)
+  const glass = useGlass({ radius: 36 })
   const remaining = useCountdown(plan.at)
   const isSet = Boolean(plan.at)
   const isPast = remaining?.isPast ?? false
@@ -56,7 +58,8 @@ export function Countdown({ plan, location, onChange }: CountdownProps) {
     'w-full rounded-2xl border-0 bg-white/55 px-4 py-3.5 text-[15px] text-ink-900 shadow-[inset_0_0_0_0.5px_rgba(255,255,255,0.7)] outline-none transition placeholder:text-ink-400 focus:bg-white/80 focus:shadow-[inset_0_0_0_1px_rgba(23,18,15,0.35)]'
 
   return (
-    <div className="glass rounded-glass-lg p-6 sm:p-9 md:p-11">
+    <div className="glass rounded-glass-lg p-6 sm:p-9 md:p-11" {...glass.props}>
+      {glass.layers}
       <div className="mb-9 flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="eyebrow">{isPast ? 'Это уже случилось' : 'До встречи'}</p>

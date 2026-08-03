@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
 import { CATEGORY_META } from '@/data/locations'
+import { useGlass } from '@/hooks/useGlass'
 import { Rating } from '@/components/ui/Rating'
 import type { DateLocation } from '@/types'
 
@@ -32,6 +33,7 @@ export function LocationDialog({
   onToggleFavorite,
 }: LocationDialogProps) {
   const closeRef = useRef<HTMLButtonElement>(null)
+  const glass = useGlass({ radius: 36 })
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
@@ -96,7 +98,9 @@ export function LocationDialog({
             exit={{ y: 24, opacity: 0, scale: 0.985 }}
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
             className="glass-strong relative max-h-[92dvh] w-full max-w-xl overflow-y-auto rounded-t-glass-lg sm:rounded-glass-lg"
+            {...glass.props}
           >
+            {glass.layers}
             <div className="px-6 pb-6 pt-7 sm:px-9 sm:pt-9">
               <div className="flex items-start justify-between gap-4">
                 <div>

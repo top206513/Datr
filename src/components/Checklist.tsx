@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import clsx from 'clsx'
 import { DEFAULT_CHECKLIST, GROUP_META } from '@/data/checklist'
 import { Section } from '@/components/ui/Section'
+import { useGlass } from '@/hooks/useGlass'
 import { plural } from '@/lib/time'
 import type { ChecklistGroup, ChecklistItem } from '@/types'
 
@@ -148,6 +149,7 @@ export function Checklist({
 }: ChecklistProps) {
   const [draft, setDraft] = useState('')
   const [draftGroup, setDraftGroup] = useState<ChecklistGroup>('day')
+  const summary = useGlass({ radius: 24 })
 
   const items = useMemo(() => [...DEFAULT_CHECKLIST, ...customItems], [customItems])
   const doneCount = items.filter((item) => checked.includes(item.id)).length
@@ -177,7 +179,8 @@ export function Checklist({
       title="Чтобы вечер прошёл так, как вы задумали"
       description="Идеальное свидание — это не импровизация, а несколько заранее закрытых мелочей. Отмечайте пункты: прогресс сохранится, даже если закрыть вкладку."
       aside={
-        <div className="glass flex items-center gap-5 rounded-3xl px-6 py-5">
+        <div className="glass flex items-center gap-5 rounded-3xl px-6 py-5" {...summary.props}>
+          {summary.layers}
           <ProgressRing value={doneCount} total={items.length} />
           <div>
             <p className="text-lg font-semibold tracking-tight text-ink-900">

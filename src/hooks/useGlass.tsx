@@ -17,7 +17,7 @@ interface GlassOptions {
 function blurFor(size: { w: number; h: number } | null): number {
   if (!size) return 0
   const min = Math.min(size.w, size.h)
-  return Math.min(16, Math.max(6, min * 0.07))
+  return Math.min(18, Math.max(9, min * 0.075))
 }
 
 /** Размер округляем до 4 px: иначе фильтр пересобирается на каждый пиксель. */
@@ -150,6 +150,7 @@ export function useGlass({ radius = 28, enabled = true }: GlassOptions = {}) {
     <>
       {filter}
       <span aria-hidden className="lg-specular" />
+      <span aria-hidden className="lg-rim" />
     </>
   )
 
@@ -202,6 +203,11 @@ export function useTilt() {
 
       root.style.setProperty('--lg-tx', currentX.toFixed(3))
       root.style.setProperty('--lg-ty', currentY.toFixed(3))
+      // Угол наклона задаёт, с какой стороны светится ободок
+      root.style.setProperty(
+        '--lg-a',
+        ((Math.atan2(currentY, currentX) * 180) / Math.PI - 90).toFixed(1),
+      )
 
       frame = requestAnimationFrame(tick)
     }
@@ -209,6 +215,7 @@ export function useTilt() {
     if (reduced) {
       root.style.setProperty('--lg-tx', '0')
       root.style.setProperty('--lg-ty', '0')
+      root.style.setProperty('--lg-a', '-45')
       return
     }
 

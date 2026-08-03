@@ -14,6 +14,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [active, setActive] = useState('#story')
   // Навигация обретает стекло только после прокрутки — до этого она просто текст
+  const logo = useGlass({ radius: 999, enabled: scrolled })
   const nav = useGlass({ radius: 999, enabled: scrolled })
   const cta = useGlass({ radius: 999 })
 
@@ -53,7 +54,9 @@ export function Header() {
             'flex items-center gap-2.5 rounded-full py-2 transition-all duration-500',
             scrolled ? 'glass-thin px-4' : 'px-1',
           )}
+          {...logo.props}
         >
+          {scrolled && logo.layers}
           <CupidMark className="size-5 shrink-0 text-ink-900" weight={3} />
           <span className="text-[15px] font-semibold tracking-tight text-ink-900">
             Railway Last

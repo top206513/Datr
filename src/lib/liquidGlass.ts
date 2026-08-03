@@ -35,14 +35,14 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
  */
 export function tuneGlass(width: number, height: number): GlassTuning {
   const min = Math.min(width, height)
-  const band = clamp(min * 0.28, 10, 34)
+  const band = clamp(min * 0.42, 12, 34)
 
   // У мелкого элемента кромка — это почти весь элемент, и линза может быть
-  // сильной. У крупной панели плоский центр занимает большую часть, и та же
-  // сила смещения рисует по границе видимое «плато». Поэтому чем меньше доля
-  // кромки, тем мягче линза.
+  // сильной: содержимое под пилюлей должно заметно уезжать. У крупной панели
+  // плоский центр занимает большую часть, и та же сила смещения рисует по
+  // границе видимое «плато». Поэтому чем меньше доля кромки, тем мягче линза.
   const edgeShare = band / min
-  const strength = 1.15 + 0.75 * clamp((edgeShare - 0.06) / 0.2, 0, 1)
+  const strength = 1.2 + 1.15 * clamp((edgeShare - 0.06) / 0.3, 0, 1)
 
   return {
     band,

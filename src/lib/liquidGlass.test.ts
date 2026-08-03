@@ -14,8 +14,8 @@ describe('tuneGlass', () => {
     const tiny = tuneGlass(20, 20)
     const huge = tuneGlass(1600, 900)
 
-    expect(tiny.band).toBeGreaterThanOrEqual(9)
-    expect(huge.band).toBeLessThanOrEqual(28)
+    expect(tiny.band).toBeGreaterThanOrEqual(10)
+    expect(huge.band).toBeLessThanOrEqual(34)
   })
 
   it('считает толщину по короткой стороне', () => {
@@ -90,5 +90,22 @@ describe('channelMatrix', () => {
   it('разводит каналы по разным строкам матрицы', () => {
     expect(channelMatrix('r')).not.toBe(channelMatrix('g'))
     expect(channelMatrix('g')).not.toBe(channelMatrix('b'))
+  })
+})
+
+describe('сила линзы', () => {
+  it('мягче на крупной панели, чем на мелкой пилюле', () => {
+    const pill = tuneGlass(220, 48)
+    const panel = tuneGlass(600, 420)
+
+    // сила смещения относительно ширины кромки
+    expect(pill.scale / pill.band).toBeGreaterThan(panel.scale / panel.band)
+  })
+
+  it('не опускается ниже ширины кромки', () => {
+    for (const size of [40, 120, 400, 1200]) {
+      const tuning = tuneGlass(size, size)
+      expect(tuning.scale).toBeGreaterThan(tuning.band)
+    }
   })
 })

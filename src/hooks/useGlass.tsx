@@ -13,6 +13,13 @@ interface GlassOptions {
   enabled?: boolean
 }
 
+/** Крупная панель размывает фон сильнее — это и читается как толщина стекла. */
+function blurFor(size: { w: number; h: number } | null): number {
+  if (!size) return 0
+  const min = Math.min(size.w, size.h)
+  return Math.min(16, Math.max(6, min * 0.07))
+}
+
 /** Размер округляем до 4 px: иначе фильтр пересобирается на каждый пиксель. */
 const QUANTUM = 4
 const quantize = (value: number) => Math.round(value / QUANTUM) * QUANTUM
@@ -124,13 +131,18 @@ export function useGlass({ radius = 28, enabled = true }: GlassOptions = {}) {
     )
   }, [active, size, radius, id])
 
+  // Размытие идёт ПЕРЕД смещением: линза гнёт уже размытый фон. Так за
+  // стеклом не остаётся читаемого текста и не нужно глушить рефракцию
+  // плотным тинтом — читаемость держит размытие, как в настоящем материале.
+  const chain = filter
+    ? `blur(${blurFor(size)}px) url(#${id}) saturate(170%) brightness(1.04)`
+    : undefined
+
   const props = {
     ref: ref as React.Ref<never>,
-    style: filter
-      ? ({
-          backdropFilter: `url(#${id}) saturate(165%) brightness(1.03)`,
-          WebkitBackdropFilter: `url(#${id}) saturate(165%) brightness(1.03)`,
-        } as React.CSSProperties)
+    'data-refracting': filter ? '' : undefined,
+    style: chain
+      ? ({ backdropFilter: chain, WebkitBackdropFilter: chain } as React.CSSProperties)
       : undefined,
   }
 

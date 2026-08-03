@@ -20,7 +20,9 @@ const fadeUp = {
 }
 
 export function Hero({ plan, location }: HeroProps) {
-  const cover = useGlass({ radius: 36 })
+  // Обложка висит над пустым градиентом — преломлять там нечего,
+  // поэтому у неё только материал и блик, без рефракции.
+  const cover = useGlass({ radius: 36, enabled: false })
 
   return (
     <section

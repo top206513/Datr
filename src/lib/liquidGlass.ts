@@ -35,15 +35,22 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
  */
 export function tuneGlass(width: number, height: number): GlassTuning {
   const min = Math.min(width, height)
-  const band = clamp(min * 0.24, 9, 28)
+  const band = clamp(min * 0.28, 10, 34)
+
+  // У мелкого элемента кромка — это почти весь элемент, и линза может быть
+  // сильной. У крупной панели плоский центр занимает большую часть, и та же
+  // сила смещения рисует по границе видимое «плато». Поэтому чем меньше доля
+  // кромки, тем мягче линза.
+  const edgeShare = band / min
+  const strength = 1.15 + 0.75 * clamp((edgeShare - 0.06) / 0.2, 0, 1)
 
   return {
     band,
-    scale: band * 1.45,
+    scale: band * strength,
     // Размытие карты сравнимо с шириной кромки: иначе переход от линзы к
     // плоскому центру виден прямоугольным швом, особенно на гладком фоне.
     soft: band * 1.25,
-    chroma: 0.05,
+    chroma: 0.06,
     blur: clamp(min * 0.004, 0.3, 0.9),
   }
 }

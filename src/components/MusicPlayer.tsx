@@ -99,7 +99,11 @@ export function MusicPlayer() {
   const progress = player.duration > 0 ? (player.position / player.duration) * 100 : 0
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-3 pb-3 sm:px-5 sm:pb-5">
+    <div
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-3 pb-3 sm:px-5 sm:pb-5"
+      // На iPhone в режиме «с домашнего экрана» внизу живёт индикатор — не залезаем под него.
+      style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+    >
       <div className="pointer-events-auto mx-auto w-full max-w-4xl">
         <AnimatePresence initial={false}>
           {open && (

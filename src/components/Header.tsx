@@ -14,9 +14,9 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [active, setActive] = useState('#story')
   // Навигация обретает стекло только после прокрутки — до этого она просто текст
-  const logo = useGlass({ radius: 999, enabled: scrolled, overlay: true })
-  const nav = useGlass({ radius: 999, enabled: scrolled, overlay: true })
-  const cta = useGlass({ radius: 999, overlay: true })
+  const logo = useGlass({ radius: 999, enabled: scrolled })
+  const nav = useGlass({ radius: 999, enabled: scrolled })
+  const cta = useGlass({ radius: 999 })
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)

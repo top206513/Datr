@@ -31,7 +31,7 @@ let writtenY = -2
 
 function publish(x: number, y: number): void {
   if (targets.size === 0) return
-  if (Math.abs(x - written) < 0.02 && Math.abs(y - writtenY) < 0.02) return
+  if (Math.abs(x - written) < 0.03 && Math.abs(y - writtenY) < 0.03) return
 
   written = x
   writtenY = y
@@ -94,7 +94,7 @@ function begin(): () => void {
     tilt.x += (targetX - tilt.x) * 0.06
     tilt.y += (targetY - tilt.y) * 0.06
 
-    if (now - lastPublish > 70) {
+    if (now - lastPublish > 100) {
       lastPublish = now
       publish(tilt.x, tilt.y)
     }

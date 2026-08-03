@@ -1,6 +1,4 @@
-import { useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { GlassModeContext } from '@/gl/context'
-import { registerSurface } from '@/gl/registry'
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
   buildDisplacementMap,
   channelMatrix,
@@ -14,16 +12,6 @@ interface GlassOptions {
   radius?: number
   /** Отключить стекло (например, для мелких повторяющихся элементов) */
   enabled?: boolean
-  /**
-   * Поверхность висит над содержимым страницы, а не над фоном.
-   * WebGL не видит пиксели DOM под собой, поэтому такие элементы остаются
-   * на backdrop-filter — иначе они перестанут показывать текст за собой.
-   */
-  overlay?: boolean
-  /** Плотность материала, 0–1 */
-  tint?: number
-  /** Толщина стекла, px — насколько глубоко уходит линза от кромки */
-  thickness?: number
 }
 
 /** Крупная панель размывает фон сильнее — это и читается как толщина стекла. */
@@ -31,6 +19,14 @@ function blurFor(size: { w: number; h: number } | null): number {
   if (!size) return 0
   const min = Math.min(size.w, size.h)
   return Math.min(18, Math.max(9, min * 0.075))
+}
+
+let coarse: boolean | null = null
+
+/** Сенсорный экран: там прокрутка важнее рефракции. */
+function isCoarsePointer(): boolean {
+  if (coarse === null) coarse = matchMedia('(pointer: coarse)').matches
+  return coarse
 }
 
 /** Размер округляем до 4 px: иначе фильтр пересобирается на каждый пиксель. */
@@ -45,39 +41,24 @@ const quantize = (value: number) => Math.round(value / QUANTUM) * QUANTUM
  * потому что стекло нужно на самых разных узлах: motion.div, article, a,
  * form — и подменять им тег было бы неудобно.
  */
-export function useGlass({
-  radius = 28,
-  enabled = true,
-  overlay = false,
-  tint = 0.4,
-  thickness = 34,
-}: GlassOptions = {}) {
+export function useGlass({ radius = 28, enabled = true }: GlassOptions = {}) {
   const id = useId().replace(/[^a-zA-Z0-9]/g, '')
   const ref = useRef<HTMLElement | null>(null)
   const [size, setSize] = useState<{ w: number; h: number } | null>(null)
 
-  const stageActive = useContext(GlassModeContext)
-  // Поверхности на фоне отдаёт шейдер
-  const onStage = stageActive && enabled && !overlay
-  // Когда сцена работает, фон под оверлеями меняется каждый кадр — SVG-фильтр
-  // пришлось бы пересчитывать столько же раз, и это самое дорогое, что есть
-  // в кадре. Оверлеи в этом режиме довольствуются размытием, кромкой и бликом.
-  const active = enabled && !stageActive && supportsRefraction()
+  // Рефракция через SVG-фильтр стоит дорого при прокрутке: браузер
+  // пересчитывает её каждый раз, когда элемент проезжает над новым фоном.
+  // На сенсорных экранах это заметно, поэтому там остаются размытие, кромка
+  // и блик — они композитятся и не трогают главный поток.
+  const active = enabled && supportsRefraction() && !isCoarsePointer()
 
+  // Переменные наклона пишутся только в те элементы, что рисуют блик
   useEffect(() => {
     const node = ref.current
-    if (!onStage || !node) return
-
-    return registerSurface({ el: node, radius, tint, thickness })
-  }, [onStage, radius, tint, thickness])
-
-  // Переменные наклона пишутся только в те элементы, что рисуют блик сами
-  useEffect(() => {
-    const node = ref.current
-    if (onStage || !enabled || !node) return
+    if (!enabled || !node) return
 
     return bindTiltTarget(node)
-  }, [onStage, enabled])
+  }, [enabled])
 
   useLayoutEffect(() => {
     const node = ref.current
@@ -180,15 +161,13 @@ export function useGlass({
 
   const props = {
     ref: ref as React.Ref<never>,
-    'data-gl-surface': onStage ? '' : undefined,
     'data-refracting': filter ? '' : undefined,
     style: chain
       ? ({ backdropFilter: chain, WebkitBackdropFilter: chain } as React.CSSProperties)
       : undefined,
   }
 
-  // На сцене все слои материала рисует шейдер — в DOM ничего не нужно
-  const layers = onStage ? null : (
+  const layers = (
     <>
       {filter}
       <span aria-hidden className="lg-specular" />

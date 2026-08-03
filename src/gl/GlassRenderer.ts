@@ -1,14 +1,4 @@
-import { FRAGMENT_SHADER, MAX_PANELS, VERTEX_SHADER } from '@/gl/shaders'
-
-export interface PanelUniform {
-  x: number
-  y: number
-  w: number
-  h: number
-  radius: number
-  tint: number
-  thickness: number
-}
+import { FRAGMENT_SHADER, VERTEX_SHADER } from '@/gl/shaders'
 
 function compile(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
   const shader = gl.createShader(type)
@@ -27,11 +17,11 @@ function compile(gl: WebGLRenderingContext, type: number, source: string): WebGL
 }
 
 /**
- * Рисует стеклянную сцену одним полноэкранным треугольником.
+ * Рисует фон приложения одним полноэкранным треугольником.
  *
- * Никаких фреймбуферов и текстур: фон считается формулой прямо во фрагментном
- * шейдере, поэтому преломление — это ещё три вызова той же формулы. Один
- * draw call на кадр, состояние GL настраивается один раз при создании.
+ * Ни текстур, ни фреймбуферов: градиент и световые пятна считаются формулой
+ * прямо во фрагментном шейдере. Один draw call, состояние GL настраивается
+ * один раз при создании.
  */
 export class GlassRenderer {
   private gl: WebGLRenderingContext | null = null
@@ -42,13 +32,6 @@ export class GlassRenderer {
   private uScale: WebGLUniformLocation | null = null
   private uTime: WebGLUniformLocation | null = null
   private uTilt: WebGLUniformLocation | null = null
-  private uCount: WebGLUniformLocation | null = null
-  private uRect: WebGLUniformLocation | null = null
-  private uMeta: WebGLUniformLocation | null = null
-
-  private rectData = new Float32Array(MAX_PANELS * 4)
-  private metaData = new Float32Array(MAX_PANELS * 4)
-
   private width = 0
   private height = 0
   private cssWidth = 0
@@ -105,9 +88,6 @@ export class GlassRenderer {
     this.uScale = gl.getUniformLocation(program, 'uScale')
     this.uTime = gl.getUniformLocation(program, 'uTime')
     this.uTilt = gl.getUniformLocation(program, 'uTilt')
-    this.uCount = gl.getUniformLocation(program, 'uCount')
-    this.uRect = gl.getUniformLocation(program, 'uRect[0]')
-    this.uMeta = gl.getUniformLocation(program, 'uMeta[0]')
   }
 
   get ok(): boolean {
@@ -137,32 +117,14 @@ export class GlassRenderer {
     gl.viewport(0, 0, w, h)
   }
 
-  render(time: number, tilt: { x: number; y: number }, panels: PanelUniform[]): void {
+  render(time: number, tilt: { x: number; y: number }): void {
     const gl = this.gl
     if (!gl || !this.program) return
-
-    const count = Math.min(panels.length, MAX_PANELS)
-
-    for (let i = 0; i < count; i++) {
-      const panel = panels[i]
-      const r = i * 4
-      this.rectData[r] = panel.x
-      this.rectData[r + 1] = panel.y
-      this.rectData[r + 2] = panel.w
-      this.rectData[r + 3] = panel.h
-      this.metaData[r] = panel.radius
-      this.metaData[r + 1] = panel.tint
-      this.metaData[r + 2] = panel.thickness
-      this.metaData[r + 3] = 0
-    }
 
     gl.uniform2f(this.uRes, this.cssWidth, this.cssHeight)
     gl.uniform1f(this.uScale, this.scale)
     gl.uniform1f(this.uTime, time)
     gl.uniform2f(this.uTilt, tilt.x, tilt.y)
-    gl.uniform1i(this.uCount, count)
-    gl.uniform4fv(this.uRect, this.rectData)
-    gl.uniform4fv(this.uMeta, this.metaData)
 
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }

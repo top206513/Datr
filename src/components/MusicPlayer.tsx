@@ -97,8 +97,8 @@ export function MusicPlayer() {
   const [expanded, setExpanded] = useState(false)
 
   // Развёрнутая карточка «толще» пилюли: радиус больше — линза глубже
-  const card = useGlass({ radius: 28, overlay: true })
-  const pill = useGlass({ radius: 999, overlay: true })
+  const card = useGlass({ radius: 28 })
+  const pill = useGlass({ radius: 999 })
 
   const progress = player.duration > 0 ? (player.position / player.duration) * 100 : 0
   const left = Math.max(0, player.duration - player.position)

@@ -12,22 +12,20 @@ interface SectionProps {
 
 export function Section({ id, eyebrow, title, description, aside, children }: SectionProps) {
   return (
-    <section id={id} className="scroll-mt-24 px-5 py-16 sm:px-8 md:py-24">
+    <section id={id} className="scroll-mt-28 px-5 py-16 sm:px-8 md:py-24">
       <div className="mx-auto w-full max-w-6xl">
         <motion.header
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-10 flex flex-col gap-5 md:mb-14 md:flex-row md:items-end md:justify-between"
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="mb-10 flex flex-col gap-6 md:mb-14 md:flex-row md:items-end md:justify-between"
         >
           <div className="max-w-2xl">
-            <p className="mb-3 text-xs font-medium uppercase tracking-[0.28em] text-gold-400/80">
-              {eyebrow}
-            </p>
-            <h2 className="text-3xl leading-tight text-mist-100 sm:text-4xl md:text-5xl">{title}</h2>
+            <p className="eyebrow mb-4">{eyebrow}</p>
+            <h2 className="text-[2.1rem] text-ink-900 sm:text-5xl md:text-[3.4rem]">{title}</h2>
             {description && (
-              <p className="mt-4 text-[15px] leading-relaxed text-mist-300 sm:text-base">
+              <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-ink-700 sm:text-base">
                 {description}
               </p>
             )}

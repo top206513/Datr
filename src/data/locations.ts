@@ -1,15 +1,12 @@
 import type { DateLocation, LocationCategory } from '@/types'
 
-export const CATEGORY_META: Record<
-  LocationCategory,
-  { label: string; icon: string; accent: string }
-> = {
-  view: { label: 'Виды', icon: '🌆', accent: 'from-gold-400 to-wine-400' },
-  walk: { label: 'Прогулка', icon: '🍂', accent: 'from-wine-300 to-wine-500' },
-  dinner: { label: 'Ужин', icon: '🍷', accent: 'from-wine-500 to-night-600' },
-  culture: { label: 'Культура', icon: '🎭', accent: 'from-gold-300 to-gold-500' },
-  coffee: { label: 'Кофе', icon: '☕', accent: 'from-gold-500 to-wine-400' },
-  night: { label: 'Поздний вечер', icon: '🌙', accent: 'from-night-600 to-wine-500' },
+export const CATEGORY_META: Record<LocationCategory, { label: string; icon: string }> = {
+  view: { label: 'Виды', icon: '🌆' },
+  walk: { label: 'Прогулка', icon: '🍂' },
+  dinner: { label: 'Ужин', icon: '🍷' },
+  culture: { label: 'Культура', icon: '🎭' },
+  coffee: { label: 'Кофе', icon: '☕' },
+  night: { label: 'Поздний вечер', icon: '🌙' },
 }
 
 /**

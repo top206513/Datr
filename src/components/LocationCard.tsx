@@ -28,29 +28,24 @@ export function LocationCard({
   return (
     <motion.article
       layout
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.97 }}
+      exit={{ opacity: 0, scale: 0.98 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       onMouseEnter={onHover}
       className={clsx(
-        'group relative overflow-hidden rounded-2xl border p-4 transition-colors duration-300',
-        active || chosen
-          ? 'border-gold-400/55 bg-white/[0.09]'
-          : 'border-white/10 bg-white/[0.035] hover:border-wine-400/45 hover:bg-white/[0.07]',
+        'group relative overflow-hidden rounded-3xl p-3.5 transition-all duration-300',
+        active || chosen ? 'bg-white/70 shadow-[0_6px_20px_-10px_rgba(93,44,52,0.4)]' : 'hover:bg-white/45',
       )}
     >
       <button
         type="button"
         onClick={onOpen}
-        className="flex w-full items-start gap-3.5 text-left focus:outline-none"
+        className="flex w-full items-center gap-3.5 text-left outline-none"
         aria-label={`Открыть карточку: ${location.name}`}
       >
         <span
-          className={clsx(
-            'grid size-11 shrink-0 place-items-center rounded-xl bg-linear-to-br text-lg shadow-lg transition-transform duration-300 group-hover:scale-105',
-            meta.accent,
-          )}
+          className="glass-thin grid size-11 shrink-0 place-items-center rounded-2xl text-[15px]"
           aria-hidden
         >
           {meta.icon}
@@ -58,21 +53,21 @@ export function LocationCard({
 
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-2">
-            <span className="truncate font-display text-lg leading-snug text-mist-100">
+            <span className="truncate text-[15px] font-semibold tracking-tight text-ink-900">
               {location.name}
             </span>
             {chosen && (
-              <span className="shrink-0 rounded-full bg-gold-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-gold-300">
+              <span className="shrink-0 rounded-full bg-ink-900 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-cream-50">
                 выбрано
               </span>
             )}
           </span>
 
-          <span className="mt-0.5 block truncate text-xs text-mist-500">{location.area}</span>
+          <span className="mt-0.5 block truncate text-[13px] text-ink-500">{location.area}</span>
 
-          <span className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span className="mt-2 flex items-center gap-3">
             <Rating value={location.rating} />
-            <span className="text-xs text-mist-500">· {location.duration}</span>
+            <span className="text-[12px] text-ink-400">{location.duration}</span>
           </span>
         </span>
       </button>
@@ -83,10 +78,10 @@ export function LocationCard({
         aria-pressed={favorite}
         aria-label={favorite ? 'Убрать из избранного' : 'Добавить в избранное'}
         className={clsx(
-          'absolute right-3 top-3 grid size-8 place-items-center rounded-full text-sm transition',
+          'absolute right-3 top-3 grid size-7 place-items-center rounded-full text-[13px] transition duration-300',
           favorite
-            ? 'bg-wine-500/25 text-wine-300'
-            : 'text-mist-500 opacity-0 hover:bg-white/10 hover:text-wine-300 focus-visible:opacity-100 group-hover:opacity-100',
+            ? 'text-rose-600'
+            : 'text-ink-300 opacity-0 hover:bg-white/60 hover:text-rose-500 focus-visible:opacity-100 group-hover:opacity-100',
         )}
       >
         {favorite ? '♥' : '♡'}

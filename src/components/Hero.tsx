@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { CupidMark } from '@/components/CupidMark'
 import { formatDateLong } from '@/lib/time'
 import type { DateLocation, PlannedDate } from '@/types'
 
@@ -8,92 +9,105 @@ interface HeroProps {
 }
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 26 },
+  hidden: { opacity: 0, y: 22, filter: 'blur(6px)' },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.8, delay: 0.15 + i * 0.12, ease: [0.22, 1, 0.36, 1] as const },
+    filter: 'blur(0px)',
+    transition: { duration: 0.9, delay: 0.1 + i * 0.1, ease: [0.22, 1, 0.36, 1] as const },
   }),
 }
 
 export function Hero({ plan, location }: HeroProps) {
   return (
-    <section id="top" className="relative flex min-h-[92dvh] items-center px-5 pb-36 pt-28 sm:px-8">
-      <div className="mx-auto w-full max-w-6xl">
-        <motion.p
-          custom={0}
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-          className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/12 bg-white/5 px-4 py-2 text-xs text-mist-300 backdrop-blur-sm"
-        >
-          <span className="size-1.5 animate-pulse-soft rounded-full bg-wine-400" aria-hidden />
-          Планировщик свиданий, выросший из одного вечера
-        </motion.p>
+    <section
+      id="top"
+      className="relative flex min-h-[92dvh] items-center px-5 pb-40 pt-32 sm:px-8"
+    >
+      <div className="mx-auto grid w-full max-w-6xl gap-12 lg:grid-cols-[1.15fr_1fr] lg:items-center">
+        <div>
+          <motion.p custom={0} initial="hidden" animate="visible" variants={fadeUp} className="eyebrow">
+            Планирование свиданий
+          </motion.p>
 
-        <motion.h1
-          custom={1}
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-          className="max-w-4xl text-5xl leading-[1.05] text-mist-100 sm:text-7xl md:text-8xl"
-        >
-          Успеть на <span className="text-gradient">последний поезд</span>
-        </motion.h1>
-
-        <motion.p
-          custom={2}
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-          className="mt-7 max-w-xl text-base leading-relaxed text-mist-300 sm:text-lg"
-        >
-          Railway Last собирает всё, из чего складывается идеальное свидание: место, время, музыку
-          и десяток мелочей, о которых легко забыть. Не приложение для знакомств — приложение для
-          того, что происходит после.
-        </motion.p>
-
-        <motion.div
-          custom={3}
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-          className="mt-9 flex flex-wrap items-center gap-3"
-        >
-          <a
-            href="#countdown"
-            className="rounded-full bg-linear-to-r from-wine-500 to-gold-500 px-7 py-3.5 text-sm font-semibold text-night-950 shadow-glow transition hover:brightness-110"
-          >
-            Назначить вечер
-          </a>
-          <a
-            href="#places"
-            className="rounded-full border border-white/15 px-7 py-3.5 text-sm font-medium text-mist-100 transition hover:border-gold-400/60 hover:text-gold-300"
-          >
-            Посмотреть места
-          </a>
-        </motion.div>
-
-        {plan.at && (
-          <motion.div
-            custom={4}
+          <motion.h1
+            custom={1}
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            className="mt-12 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-mist-500"
+            className="mt-6 text-[3rem] text-ink-900 sm:text-6xl md:text-[4.25rem]"
           >
-            <span className="first-letter:uppercase">
-              <span className="text-mist-300">Ближайшее:</span> {formatDateLong(plan.at)}
-            </span>
-            {location && (
-              <span>
-                <span className="text-mist-300">Место:</span> {location.name}
-              </span>
-            )}
-          </motion.div>
-        )}
-      </div>
+            Успеть
+            <br />
+            на последний
+            <br />
+            поезд
+          </motion.h1>
 
+          <motion.p
+            custom={2}
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            className="mt-8 max-w-md text-[17px] leading-relaxed text-ink-700"
+          >
+            Место, время, музыка и десяток мелочей, о которых легко забыть, — в одном месте.
+            Не приложение для знакомств, а приложение для того, что происходит после.
+          </motion.p>
+
+          <motion.div
+            custom={3}
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            className="mt-10 flex flex-wrap items-center gap-3"
+          >
+            <a
+              href="#countdown"
+              className="rounded-full bg-ink-900 px-7 py-3.5 text-[15px] font-medium text-cream-50 transition duration-300 hover:bg-ink-700 active:scale-[0.97]"
+            >
+              Назначить вечер
+            </a>
+            <a
+              href="#places"
+              className="glass-thin rounded-full px-7 py-3.5 text-[15px] font-medium text-ink-900 transition duration-300 hover:bg-white/70 active:scale-[0.97]"
+            >
+              Посмотреть места
+            </a>
+          </motion.div>
+
+          {plan.at && (
+            <motion.p
+              custom={4}
+              initial="hidden"
+              animate="visible"
+              variants={fadeUp}
+              className="mt-10 text-sm text-ink-500"
+            >
+              <span className="first-letter:uppercase">{formatDateLong(plan.at)}</span>
+              {location && <> · {location.name}</>}
+            </motion.p>
+          )}
+        </div>
+
+        {/* «Обложка» — тот же знак, что и в иконке приложения */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.94, filter: 'blur(10px)' }}
+          animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+          transition={{ duration: 1.1, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          className="glass mx-auto grid aspect-square w-full max-w-sm place-items-center rounded-glass-lg p-12 lg:max-w-md"
+        >
+          <div className="w-full">
+            <p className="text-center text-[0.65rem] font-semibold uppercase tracking-[0.42em] text-ink-700">
+              The&nbsp;Beginning
+            </p>
+            <CupidMark className="mx-auto mt-8 w-2/3 text-ink-900" weight={1.9} />
+            <p className="mt-8 text-center text-[0.65rem] font-semibold uppercase tracking-[0.32em] text-ink-500">
+              Railway Last
+            </p>
+          </div>
+        </motion.div>
+      </div>
     </section>
   )
 }

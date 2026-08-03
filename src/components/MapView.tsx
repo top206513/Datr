@@ -16,9 +16,9 @@ function buildIcon(location: DateLocation, active: boolean): L.DivIcon {
     html: `<div class="rl-pin${active ? ' rl-pin--active' : ''}">${
       CATEGORY_META[location.category].icon
     }</div>`,
-    iconSize: [34, 34],
-    iconAnchor: [17, 17],
-    popupAnchor: [0, -20],
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -18],
   })
 }
 
@@ -45,10 +45,16 @@ export function MapView({ locations, activeId, chosenId, onSelect }: MapViewProp
       attributionControl: true,
     })
 
-    const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap',
-    })
+    // Positron — светлая минималистичная подложка: улицы читаются,
+    // но карта не спорит с интерфейсом.
+    const tiles = L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      {
+        maxZoom: 19,
+        subdomains: 'abcd',
+        attribution: '© OpenStreetMap · © CARTO',
+      },
+    )
 
     // Без сети подложка не загрузится — точки всё равно останутся на своих местах.
     tiles.on('tileerror', () => setTilesFailed(true))
@@ -94,7 +100,7 @@ export function MapView({ locations, activeId, chosenId, onSelect }: MapViewProp
       })
         .addTo(map)
         .bindPopup(
-          `<strong style="font-size:14px">${location.name}</strong><br/><span style="opacity:.7">${location.area}</span>`,
+          `<strong style="font-size:14px;font-weight:600">${location.name}</strong><br/><span style="opacity:.55">${location.area}</span>`,
         )
         .on('click', () => selectRef.current(location.id))
 
@@ -131,19 +137,14 @@ export function MapView({ locations, activeId, chosenId, onSelect }: MapViewProp
   }, [activeId, chosenId, locations])
 
   return (
-    <div className="rl-map glass relative h-[380px] overflow-hidden rounded-xl2 sm:h-[460px] lg:h-full lg:min-h-[560px]">
+    <div className="rl-map glass relative h-[380px] overflow-hidden rounded-glass-lg sm:h-[460px] lg:h-full lg:min-h-[560px]">
       <div ref={containerRef} className="h-full w-full" />
 
       {tilesFailed && (
-        <p className="pointer-events-none absolute inset-x-4 top-4 z-500 mx-auto max-w-xs rounded-xl border border-white/12 bg-night-900/90 px-4 py-2.5 text-center text-xs text-mist-300 backdrop-blur">
+        <p className="glass-strong pointer-events-none absolute inset-x-4 top-4 z-500 mx-auto max-w-xs rounded-2xl px-4 py-2.5 text-center text-[12px] text-ink-700">
           Подложка карты не загрузилась — нет соединения. Точки и карточки работают как обычно.
         </p>
       )}
-
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-xl2 shadow-[inset_0_0_90px_rgba(11,6,14,0.85)]"
-      />
     </div>
   )
 }

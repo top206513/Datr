@@ -19,35 +19,35 @@ const GROUP_ORDER: ChecklistGroup[] = ['before', 'look', 'day']
 
 function ProgressRing({ value, total }: { value: number; total: number }) {
   const ratio = total > 0 ? value / total : 0
-  const radius = 34
+  const radius = 32
   const circumference = 2 * Math.PI * radius
 
   return (
-    <div className="relative grid size-24 place-items-center">
+    <div className="relative grid size-20 place-items-center">
       <svg viewBox="0 0 80 80" className="absolute inset-0 -rotate-90">
-        <circle cx="40" cy="40" r={radius} className="fill-none stroke-white/10" strokeWidth="6" />
+        <circle
+          cx="40"
+          cy="40"
+          r={radius}
+          className="fill-none stroke-ink-900/12"
+          strokeWidth="5"
+        />
         <motion.circle
           cx="40"
           cy="40"
           r={radius}
-          className="fill-none stroke-[url(#ring-gradient)]"
-          strokeWidth="6"
+          className="fill-none stroke-ink-900"
+          strokeWidth="5"
           strokeLinecap="round"
           strokeDasharray={circumference}
-          animate={{ strokeDashoffset: circumference * (1 - ratio) }}
           initial={{ strokeDashoffset: circumference }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          animate={{ strokeDashoffset: circumference * (1 - ratio) }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         />
-        <defs>
-          <linearGradient id="ring-gradient" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="var(--color-wine-500)" />
-            <stop offset="100%" stopColor="var(--color-gold-400)" />
-          </linearGradient>
-        </defs>
       </svg>
-      <div className="text-center">
-        <span className="font-display text-2xl text-mist-100">{Math.round(ratio * 100)}%</span>
-      </div>
+      <span className="text-[15px] font-semibold tabular-nums text-ink-900">
+        {Math.round(ratio * 100)}%
+      </span>
     </div>
   )
 }
@@ -66,51 +66,47 @@ function Item({
   return (
     <motion.li
       layout
-      initial={{ opacity: 0, x: -12 }}
+      initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 12, height: 0 }}
-      transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+      exit={{ opacity: 0, x: 8, height: 0 }}
+      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
       className="group/item relative"
     >
       <label
         className={clsx(
-          'flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition-colors duration-300',
-          checked
-            ? 'border-transparent bg-white/[0.03]'
-            : 'border-white/8 bg-white/[0.045] hover:border-wine-400/40 hover:bg-white/[0.075]',
+          'flex cursor-pointer items-start gap-3 rounded-2xl p-3 transition-colors duration-300',
+          checked ? 'bg-transparent' : 'bg-white/35 hover:bg-white/60',
         )}
       >
-        <input
-          type="checkbox"
-          checked={checked}
-          onChange={onToggle}
-          className="peer sr-only"
-        />
+        <input type="checkbox" checked={checked} onChange={onToggle} className="peer sr-only" />
 
         <span
           aria-hidden
           className={clsx(
-            'mt-0.5 grid size-5 shrink-0 place-items-center rounded-md border transition-all duration-300 peer-focus-visible:ring-2 peer-focus-visible:ring-gold-400',
+            'mt-px grid size-[22px] shrink-0 place-items-center rounded-full transition-all duration-300 peer-focus-visible:ring-2 peer-focus-visible:ring-ink-900 peer-focus-visible:ring-offset-2',
             checked
-              ? 'border-transparent bg-linear-to-br from-wine-400 to-gold-400 text-night-950'
-              : 'border-mist-500/50 text-transparent',
+              ? 'bg-ink-900 text-cream-50'
+              : 'bg-white/70 text-transparent shadow-[inset_0_0_0_1px_rgba(23,18,15,0.16)]',
           )}
         >
-          <motion.span
+          <motion.svg
+            viewBox="0 0 24 24"
+            className="size-3 fill-none stroke-current stroke-[3.2]"
+            strokeLinecap="round"
+            strokeLinejoin="round"
             initial={false}
-            animate={{ scale: checked ? 1 : 0.4, opacity: checked ? 1 : 0 }}
-            transition={{ duration: 0.22 }}
-            className="text-[11px] font-bold leading-none"
+            animate={{ scale: checked ? 1 : 0.5, opacity: checked ? 1 : 0 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
           >
-            ✓
-          </motion.span>
+            <path d="M4 12.5 9.5 18 20 6.5" />
+          </motion.svg>
         </span>
 
         <span className="min-w-0 flex-1">
           <span
             className={clsx(
-              'block text-sm transition-colors duration-300',
-              checked ? 'text-mist-500 line-through decoration-wine-400/60' : 'text-mist-100',
+              'block text-[14px] transition-colors duration-300',
+              checked ? 'text-ink-400 line-through' : 'text-ink-900',
             )}
           >
             {item.title}
@@ -118,8 +114,8 @@ function Item({
           {item.hint && (
             <span
               className={clsx(
-                'mt-0.5 block text-xs leading-relaxed transition-colors duration-300',
-                checked ? 'text-mist-500/50' : 'text-mist-500',
+                'mt-0.5 block text-[12px] leading-relaxed transition-colors duration-300',
+                checked ? 'text-ink-300' : 'text-ink-500',
               )}
             >
               {item.hint}
@@ -133,7 +129,7 @@ function Item({
           type="button"
           onClick={onRemove}
           aria-label={`Удалить пункт: ${item.title}`}
-          className="absolute right-2 top-2 grid size-7 place-items-center rounded-full text-xs text-mist-500 opacity-0 transition hover:bg-white/10 hover:text-wine-300 focus-visible:opacity-100 group-hover/item:opacity-100"
+          className="absolute right-2 top-2 grid size-7 place-items-center rounded-full text-[11px] text-ink-300 opacity-0 transition hover:bg-white/70 hover:text-ink-900 focus-visible:opacity-100 group-hover/item:opacity-100"
         >
           ✕
         </button>
@@ -171,24 +167,23 @@ export function Checklist({
     setDraft('')
   }
 
+  const fieldClass =
+    'w-full rounded-2xl border-0 bg-white/55 px-4 py-3.5 text-[14px] text-ink-900 shadow-[inset_0_0_0_0.5px_rgba(255,255,255,0.7)] outline-none transition placeholder:text-ink-400 focus:bg-white/80'
+
   return (
     <Section
       id="checklist"
       eyebrow="Подготовка"
-      title={
-        <>
-          Чтобы вечер прошёл так, <span className="text-gradient">как вы задумали</span>
-        </>
-      }
+      title="Чтобы вечер прошёл так, как вы задумали"
       description="Идеальное свидание — это не импровизация, а несколько заранее закрытых мелочей. Отмечайте пункты: прогресс сохранится, даже если закрыть вкладку."
       aside={
-        <div className="glass flex items-center gap-4 rounded-2xl px-5 py-4">
+        <div className="glass flex items-center gap-5 rounded-3xl px-6 py-5">
           <ProgressRing value={doneCount} total={items.length} />
-          <div className="pr-1">
-            <p className="font-display text-xl text-mist-100">
+          <div>
+            <p className="text-lg font-semibold tracking-tight text-ink-900">
               {doneCount} из {items.length}
             </p>
-            <p className="mt-0.5 text-xs text-mist-500">
+            <p className="mt-0.5 text-[12px] text-ink-500">
               {left === 0
                 ? 'всё готово'
                 : `осталось ${left} ${plural(left, ['пункт', 'пункта', 'пунктов'])}`}
@@ -197,7 +192,7 @@ export function Checklist({
               <button
                 type="button"
                 onClick={onReset}
-                className="mt-2 text-[11px] text-mist-500 underline decoration-dotted underline-offset-4 transition hover:text-wine-300"
+                className="mt-2 text-[11px] text-ink-400 underline decoration-dotted underline-offset-4 transition hover:text-ink-900"
               >
                 сбросить отметки
               </button>
@@ -206,7 +201,7 @@ export function Checklist({
         </div>
       }
     >
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-3">
         {GROUP_ORDER.map((group, groupIndex) => {
           const groupItems = items.filter((item) => item.group === group)
           const groupDone = groupItems.filter((item) => checked.includes(item.id)).length
@@ -216,34 +211,30 @@ export function Checklist({
           return (
             <motion.div
               key={group}
-              initial={{ opacity: 0, y: 22 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.55, delay: groupIndex * 0.08, ease: [0.22, 1, 0.36, 1] }}
-              className={clsx(
-                'glass flex flex-col rounded-xl2 p-4 transition-shadow duration-500 sm:p-5',
-                complete && 'shadow-glow',
-              )}
+              transition={{ duration: 0.65, delay: groupIndex * 0.08, ease: [0.22, 1, 0.36, 1] }}
+              className="glass flex flex-col rounded-glass p-4 sm:p-5"
             >
-              <div className="mb-4 flex items-start justify-between gap-3">
+              <div className="mb-4 flex items-start justify-between gap-3 px-1">
                 <div>
-                  <h3 className="flex items-center gap-2 font-display text-xl text-mist-100">
-                    <span aria-hidden>{meta.icon}</span>
+                  <h3 className="text-lg font-semibold tracking-tight text-ink-900">
                     {meta.label}
                   </h3>
-                  <p className="mt-0.5 text-xs text-mist-500">{meta.caption}</p>
+                  <p className="mt-0.5 text-[12px] text-ink-500">{meta.caption}</p>
                 </div>
                 <span
                   className={clsx(
-                    'shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold tabular-nums transition-colors',
-                    complete ? 'bg-gold-400/20 text-gold-300' : 'bg-white/8 text-mist-300',
+                    'shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium tabular-nums transition-colors duration-500',
+                    complete ? 'bg-ink-900 text-cream-50' : 'bg-white/60 text-ink-500',
                   )}
                 >
                   {groupDone}/{groupItems.length}
                 </span>
               </div>
 
-              <ul className="flex flex-1 flex-col gap-2">
+              <ul className="flex flex-1 flex-col gap-1">
                 <AnimatePresence initial={false}>
                   {groupItems.map((item) => (
                     <Item
@@ -263,7 +254,7 @@ export function Checklist({
 
       <form
         onSubmit={submit}
-        className="glass mt-5 flex flex-col gap-3 rounded-2xl p-4 sm:flex-row sm:items-center"
+        className="glass mt-4 flex flex-col gap-2.5 rounded-glass p-4 sm:flex-row sm:items-center"
       >
         <label className="flex-1">
           <span className="sr-only">Новый пункт чек-листа</span>
@@ -273,19 +264,19 @@ export function Checklist({
             maxLength={80}
             onChange={(e) => setDraft(e.target.value)}
             placeholder="Добавить своё: заказать такси, взять зонт…"
-            className="w-full rounded-xl border border-white/12 bg-night-900/60 px-4 py-3 text-sm text-mist-100 placeholder:text-mist-500 transition focus:border-gold-400/60 focus:outline-none"
+            className={fieldClass}
           />
         </label>
 
-        <label className="sm:w-52">
+        <label className="sm:w-48">
           <span className="sr-only">Раздел</span>
           <select
             value={draftGroup}
             onChange={(e) => setDraftGroup(e.target.value as ChecklistGroup)}
-            className="w-full rounded-xl border border-white/12 bg-night-900/60 px-4 py-3 text-sm text-mist-100 transition focus:border-gold-400/60 focus:outline-none"
+            className={fieldClass}
           >
             {GROUP_ORDER.map((group) => (
-              <option key={group} value={group} className="bg-night-800">
+              <option key={group} value={group}>
                 {GROUP_META[group].label}
               </option>
             ))}
@@ -295,7 +286,7 @@ export function Checklist({
         <button
           type="submit"
           disabled={!draft.trim()}
-          className="rounded-xl bg-linear-to-r from-wine-500 to-gold-500 px-6 py-3 text-sm font-semibold text-night-950 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:brightness-100"
+          className="rounded-2xl bg-ink-900 px-6 py-3.5 text-[14px] font-medium text-cream-50 transition duration-300 hover:bg-ink-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-25 disabled:hover:bg-ink-900"
         >
           Добавить
         </button>

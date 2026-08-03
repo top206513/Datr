@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import clsx from 'clsx'
+import { CupidMark } from '@/components/CupidMark'
 
 const LINKS = [
   { href: '#story', label: 'Замысел' },
@@ -40,32 +41,25 @@ export function Header() {
   }, [])
 
   return (
-    <header
-      className={clsx(
-        'fixed inset-x-0 top-0 z-30 transition-all duration-500',
-        scrolled ? 'py-2' : 'py-4',
-      )}
-    >
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-8">
+    <header className="fixed inset-x-0 top-0 z-30 px-4 py-3 sm:px-6 sm:py-4">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3">
         <a
           href="#top"
           className={clsx(
-            'flex items-center gap-2.5 rounded-full transition-all duration-500',
-            scrolled && 'glass px-4 py-2',
+            'flex items-center gap-2.5 rounded-full py-2 transition-all duration-500',
+            scrolled ? 'glass-thin px-4' : 'px-1',
           )}
         >
-          <span aria-hidden className="text-lg">
-            🚂
-          </span>
-          <span className="font-display text-lg font-semibold tracking-wide text-mist-100">
-            Railway <span className="text-gradient">Last</span>
+          <CupidMark className="size-5 shrink-0 text-ink-900" weight={3} />
+          <span className="text-[15px] font-semibold tracking-tight text-ink-900">
+            Railway Last
           </span>
         </a>
 
         <nav
           className={clsx(
-            'hidden items-center gap-1 rounded-full transition-all duration-500 md:flex',
-            scrolled ? 'glass px-2 py-1.5' : 'px-0 py-0',
+            'hidden items-center gap-0.5 rounded-full p-1 transition-all duration-500 md:flex',
+            scrolled ? 'glass-thin' : '',
           )}
         >
           {LINKS.map((link) => (
@@ -73,10 +67,10 @@ export function Header() {
               key={link.href}
               href={link.href}
               className={clsx(
-                'rounded-full px-4 py-2 text-sm transition-colors',
+                'rounded-full px-4 py-2 text-[13px] font-medium transition-all duration-300',
                 active === link.href
-                  ? 'bg-white/10 text-gold-300'
-                  : 'text-mist-300 hover:text-mist-100',
+                  ? 'glass-active'
+                  : 'text-ink-700 hover:bg-white/40 hover:text-ink-900',
               )}
             >
               {link.label}
@@ -86,7 +80,7 @@ export function Header() {
 
         <a
           href="#countdown"
-          className="rounded-full border border-gold-400/40 bg-gold-400/10 px-4 py-2 text-xs font-medium text-gold-300 transition hover:bg-gold-400/20 md:text-sm"
+          className="glass-thin rounded-full px-4 py-2 text-[13px] font-medium text-ink-900 transition hover:bg-white/70"
         >
           К свиданию
         </a>

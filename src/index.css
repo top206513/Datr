@@ -3,65 +3,70 @@
 
 /* ------------------------------------------------------------------
    Railway Last — дизайн-система
-   Тёмная «вечерняя» палитра: тёплый винный сумрак + золото фонарей.
+
+   Свет вместо темноты: тёплый градиент от солнечного жёлтого к
+   коралловому, чёрный текст, и материал в духе Apple Liquid Glass —
+   полупрозрачные панели, которые преломляют фон, с тонким световым
+   бликом по верхней кромке.
 ------------------------------------------------------------------- */
 @theme {
-  --color-night-950: #0b060e;
-  --color-night-900: #140a17;
-  --color-night-800: #1d0f23;
-  --color-night-700: #2a1631;
-  --color-night-600: #3b2043;
+  /* Градиент фона */
+  --color-sun-200: #fdeec4;
+  --color-sun-300: #fbdd9b;
+  --color-sun-400: #f7cb6e;
 
-  --color-wine-500: #e0567f;
-  --color-wine-400: #ec6f93;
-  --color-wine-300: #f8b4c8;
+  --color-peach-100: #fdeadb;
+  --color-peach-200: #fbd7bd;
+  --color-peach-300: #f8bfa0;
 
-  --color-gold-500: #d9a441;
-  --color-gold-400: #f0c479;
-  --color-gold-300: #f7dcae;
+  --color-rose-300: #f9aab2;
+  --color-rose-400: #f5849a;
+  --color-rose-500: #f0647f;
+  --color-rose-600: #e0475f;
 
-  --color-mist-100: #f6eef2;
-  --color-mist-300: #cbb9c6;
-  --color-mist-500: #9b8494;
+  --color-cream-50: #fffaf5;
 
-  --font-display: 'Cormorant Garamond', 'Georgia', serif;
-  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  /* Текст */
+  --color-ink-900: #17120f;
+  --color-ink-700: #3d332e;
+  --color-ink-500: #6f625b;
+  --color-ink-400: #94867e;
+  --color-ink-300: #b6a9a1;
 
-  --radius-xl2: 1.75rem;
+  /* Системный шрифт: на Apple-устройствах это SF Pro, дальше — Inter */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+  --font-display:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif;
 
-  --shadow-glow: 0 0 60px -12px rgb(224 86 127 / 0.55);
-  --shadow-lift: 0 24px 60px -24px rgb(0 0 0 / 0.85);
+  /* Концентричные радиусы, как в iOS */
+  --radius-glass: 1.75rem;
+  --radius-glass-lg: 2.25rem;
 
-  --animate-float: float 9s ease-in-out infinite;
-  --animate-pulse-soft: pulse-soft 3.6s ease-in-out infinite;
-  --animate-shimmer: shimmer 7s linear infinite;
+  --animate-drift: drift 22s ease-in-out infinite;
+  --animate-breathe: breathe 5s ease-in-out infinite;
 }
 
-@keyframes float {
+@keyframes drift {
   0%,
   100% {
-    transform: translateY(0) rotate(0deg);
+    transform: translate3d(0, 0, 0) scale(1);
   }
-  50% {
-    transform: translateY(-18px) rotate(4deg);
+  33% {
+    transform: translate3d(4%, -3%, 0) scale(1.08);
+  }
+  66% {
+    transform: translate3d(-3%, 4%, 0) scale(0.96);
   }
 }
 
-@keyframes pulse-soft {
+@keyframes breathe {
   0%,
   100% {
-    opacity: 0.55;
-    transform: scale(1);
+    opacity: 0.5;
   }
   50% {
     opacity: 1;
-    transform: scale(1.06);
-  }
-}
-
-@keyframes shimmer {
-  to {
-    background-position: 200% center;
   }
 }
 
@@ -76,200 +81,275 @@
   body {
     margin: 0;
     min-height: 100dvh;
-    background-color: var(--color-night-950);
-    color: var(--color-mist-100);
+    background-color: var(--color-peach-100);
+    color: var(--color-ink-900);
     font-family: var(--font-sans);
     font-weight: 400;
+    letter-spacing: -0.011em;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
   h1,
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 600;
-    letter-spacing: -0.01em;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1.03;
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-gold-400);
+    outline: 2px solid var(--color-ink-900);
     outline-offset: 3px;
-    border-radius: 6px;
+    border-radius: 12px;
   }
 
   ::selection {
-    background: var(--color-wine-500);
+    background: var(--color-rose-500);
     color: #fff;
   }
 
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 9px;
+    height: 9px;
   }
   ::-webkit-scrollbar-track {
-    background: var(--color-night-900);
+    background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: var(--color-night-600);
+    background: rgb(23 18 15 / 0.16);
     border-radius: 999px;
-    border: 2px solid var(--color-night-900);
+    border: 2px solid transparent;
+    background-clip: content-box;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-wine-500);
+    background: rgb(23 18 15 / 0.3);
+    background-clip: content-box;
   }
 
-  input[type='datetime-local']::-webkit-calendar-picker-indicator {
-    filter: invert(1) sepia(1) saturate(3) hue-rotate(310deg);
-    cursor: pointer;
+  input,
+  select,
+  button,
+  textarea {
+    font: inherit;
+    letter-spacing: inherit;
   }
 }
 
 @layer components {
-  /* Матовое стекло — основа всех панелей */
+  /* --- Liquid Glass ------------------------------------------------
+     Три слоя: полупрозрачная подложка, размытие с подкруткой
+     насыщенности (стекло «оживляет» цвет за собой) и световой блик
+     по верхней кромке — он и создаёт ощущение объёма.
+  ------------------------------------------------------------------ */
   .glass {
-    background: linear-gradient(
-      145deg,
-      rgb(255 255 255 / 0.07),
-      rgb(255 255 255 / 0.02) 45%,
-      rgb(255 255 255 / 0.05)
-    );
-    backdrop-filter: blur(20px) saturate(140%);
-    -webkit-backdrop-filter: blur(20px) saturate(140%);
-    border: 1px solid rgb(255 255 255 / 0.09);
-    box-shadow: var(--shadow-lift);
+    background: rgb(255 255 255 / 0.5);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.85),
+      inset 0 0 0 0.5px rgb(255 255 255 / 0.45),
+      0 1px 2px rgb(93 44 52 / 0.04),
+      0 12px 34px -12px rgb(93 44 52 / 0.16);
   }
 
   .glass-strong {
-    background: linear-gradient(145deg, rgb(42 22 49 / 0.92), rgb(20 10 23 / 0.96));
-    backdrop-filter: blur(28px) saturate(150%);
-    -webkit-backdrop-filter: blur(28px) saturate(150%);
-    border: 1px solid rgb(255 255 255 / 0.11);
-    box-shadow: var(--shadow-lift);
+    background: rgb(255 255 255 / 0.84);
+    backdrop-filter: blur(40px) saturate(200%);
+    -webkit-backdrop-filter: blur(40px) saturate(200%);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.95),
+      inset 0 0 0 0.5px rgb(255 255 255 / 0.6),
+      0 2px 6px rgb(93 44 52 / 0.05),
+      0 24px 60px -18px rgb(93 44 52 / 0.22);
   }
 
-  /* Золотисто-розовый градиентный текст */
-  .text-gradient {
-    background: linear-gradient(
-      100deg,
-      var(--color-gold-300),
-      var(--color-wine-300) 35%,
-      var(--color-wine-500) 60%,
-      var(--color-gold-400)
-    );
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: var(--animate-shimmer);
+  /* Панель, висящая над контентом (плеер): стекло почти непрозрачно —
+     иначе текст страницы просвечивает и мешает читать. */
+  .glass-floating {
+    background: rgb(255 255 255 / 0.95);
+    backdrop-filter: blur(40px) saturate(200%);
+    -webkit-backdrop-filter: blur(40px) saturate(200%);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.95),
+      inset 0 0 0 0.5px rgb(255 255 255 / 0.6),
+      0 2px 6px rgb(93 44 52 / 0.06),
+      0 20px 50px -14px rgb(93 44 52 / 0.3);
+  }
+
+  /* Мелкие элементы управления — стекло тоньше, блик мягче */
+  .glass-thin {
+    background: rgb(255 255 255 / 0.58);
+    backdrop-filter: blur(18px) saturate(170%);
+    -webkit-backdrop-filter: blur(18px) saturate(170%);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.8),
+      inset 0 0 0 0.5px rgb(255 255 255 / 0.5),
+      0 4px 14px -6px rgb(93 44 52 / 0.16);
+  }
+
+  /* Вдавленный элемент: дорожки прогресса, поля ввода */
+  .glass-inset {
+    background: rgb(255 255 255 / 0.34);
+    box-shadow:
+      inset 0 1px 2px rgb(93 44 52 / 0.1),
+      inset 0 0 0 0.5px rgb(255 255 255 / 0.55);
+  }
+
+  /* Активное состояние: стекло «наливается» цветом */
+  .glass-active {
+    background: rgb(23 18 15 / 0.9);
+    color: var(--color-cream-50);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.22),
+      0 8px 22px -8px rgb(23 18 15 / 0.45);
+  }
+
+  /* Без backdrop-filter стекло превратилось бы в мутную плёнку,
+     сквозь которую просвечивает текст, — поэтому делаем его плотнее.
+     Тот же запас помогает, когда фон элемента изолирован анимацией. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass {
+      background: rgb(255 255 255 / 0.8);
+    }
+    .glass-strong {
+      background: rgb(255 255 255 / 0.94);
+    }
+    .glass-thin {
+      background: rgb(255 255 255 / 0.82);
+    }
+  }
+
+  /* Надзаголовки — разрядка, как на обложке */
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    color: var(--color-ink-500);
   }
 
   .hairline {
+    height: 1px;
     background: linear-gradient(
       90deg,
       transparent,
-      rgb(240 196 121 / 0.55) 20%,
-      rgb(224 86 127 / 0.55) 80%,
+      rgb(23 18 15 / 0.12) 25%,
+      rgb(23 18 15 / 0.12) 75%,
       transparent
     );
-    height: 1px;
   }
 }
 
-/* --- Leaflet: приводим карту к «ночной» палитре --- */
-
-/* Панели Leaflet живут на z-index 400–700. Изолируем их в собственном
-   контексте наложения, иначе маркеры всплывают поверх модального окна. */
+/* --- Leaflet: светлая минималистичная карта --- */
 .rl-map {
   isolation: isolate;
   z-index: 0;
 }
 
 .rl-map .leaflet-container {
-  background: var(--color-night-900);
+  background: var(--color-peach-100);
   font-family: var(--font-sans);
 }
 
-/* Тайлы OSM тонируем в тёмный, сохраняя читаемость */
 .rl-map .leaflet-tile-pane {
-  filter: invert(1) hue-rotate(185deg) brightness(0.82) contrast(0.92) saturate(0.75);
+  filter: saturate(0.72) brightness(1.03);
+}
+
+.rl-map .leaflet-control-zoom {
+  border: none !important;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px -8px rgb(93 44 52 / 0.35);
 }
 
 .rl-map .leaflet-control-zoom a {
-  background: rgb(29 15 35 / 0.94);
-  color: var(--color-mist-100);
-  border-color: rgb(255 255 255 / 0.12);
-  backdrop-filter: blur(8px);
+  background: rgb(255 255 255 / 0.72);
+  backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  color: var(--color-ink-900);
+  border-color: rgb(23 18 15 / 0.06);
+  font-weight: 500;
 }
 
 .rl-map .leaflet-control-zoom a:hover {
-  background: var(--color-wine-500);
-  color: #fff;
+  background: rgb(255 255 255 / 0.92);
 }
 
 .rl-map .leaflet-control-attribution {
-  background: rgb(11 6 14 / 0.72);
-  color: var(--color-mist-500);
+  background: rgb(255 255 255 / 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--color-ink-400);
   font-size: 10px;
+  border-radius: 8px 0 0 0;
 }
 
 .rl-map .leaflet-control-attribution a {
-  color: var(--color-wine-300);
-}
-
-.rl-map .leaflet-popup-content-wrapper,
-.rl-map .leaflet-popup-tip {
-  background: rgb(29 15 35 / 0.97);
-  color: var(--color-mist-100);
-  border: 1px solid rgb(255 255 255 / 0.12);
-  box-shadow: var(--shadow-lift);
+  color: var(--color-ink-500);
 }
 
 .rl-map .leaflet-popup-content-wrapper {
-  border-radius: 16px;
+  background: rgb(255 255 255 / 0.78);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  color: var(--color-ink-900);
+  border-radius: 18px;
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.9),
+    0 14px 34px -14px rgb(93 44 52 / 0.4);
+}
+
+.rl-map .leaflet-popup-tip {
+  background: rgb(255 255 255 / 0.78);
+  box-shadow: none;
 }
 
 .rl-map .leaflet-popup-content {
-  margin: 12px 16px;
+  margin: 11px 15px;
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
 .rl-map .leaflet-popup-close-button {
-  color: var(--color-mist-500) !important;
-  padding: 8px 8px 0 0 !important;
+  color: var(--color-ink-400) !important;
+  padding: 7px 8px 0 0 !important;
 }
 
-/* Маркер-«булавка» рисуется через divIcon */
+/* Метка на карте — стеклянная «таблетка» */
 .rl-pin {
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   border-radius: 999px;
-  background: radial-gradient(circle at 30% 25%, var(--color-wine-300), var(--color-wine-500) 70%);
-  border: 2px solid rgb(255 255 255 / 0.85);
+  background: rgb(255 255 255 / 0.82);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
   box-shadow:
-    0 0 0 6px rgb(224 86 127 / 0.18),
-    0 8px 20px -6px rgb(0 0 0 / 0.9);
-  font-size: 15px;
+    inset 0 1px 0 0 rgb(255 255 255 / 0.95),
+    0 3px 10px -2px rgb(93 44 52 / 0.35);
+  font-size: 13px;
   line-height: 1;
-  transition:
-    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.25s ease;
   cursor: pointer;
+  transition:
+    transform 0.32s cubic-bezier(0.34, 1.4, 0.64, 1),
+    box-shadow 0.32s ease;
 }
 
 .rl-pin:hover {
-  transform: scale(1.18) translateY(-2px);
+  transform: scale(1.16);
 }
 
 .rl-pin--active {
-  background: radial-gradient(circle at 30% 25%, var(--color-gold-300), var(--color-gold-500) 70%);
+  background: rgb(23 18 15 / 0.9);
   box-shadow:
-    0 0 0 8px rgb(240 196 121 / 0.22),
-    0 10px 26px -6px rgb(0 0 0 / 0.9);
-  transform: scale(1.15);
+    inset 0 1px 0 0 rgb(255 255 255 / 0.25),
+    0 0 0 5px rgb(240 100 127 / 0.22),
+    0 6px 16px -4px rgb(23 18 15 / 0.5);
+  transform: scale(1.18);
   z-index: 1000 !important;
 }
 

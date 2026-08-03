@@ -40,11 +40,11 @@ jobs:
       # Pages отдаёт 404.html при неизвестном пути; отдаём то же приложение
       - run: cp dist/index.html dist/404.html
 
+      # Требуется один раз включить Pages вручную:
+      # Settings → Pages → Build and deployment → Source: GitHub Actions.
+      # Токену Actions не хватает прав, чтобы создать сайт самому.
       - name: Configure Pages
         uses: actions/configure-pages@v5
-        with:
-          # Включает Pages автоматически, если они ещё не включены
-          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:

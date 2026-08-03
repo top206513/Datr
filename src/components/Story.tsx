@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { Section } from '@/components/ui/Section'
+import { useGlass } from '@/hooks/useGlass'
 
 const PRINCIPLES = [
   {
@@ -19,6 +20,28 @@ const PRINCIPLES = [
   },
 ]
 
+function Principle({ item, index }: { item: (typeof PRINCIPLES)[number]; index: number }) {
+  const glass = useGlass({ radius: 28 })
+
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.7, delay: index * 0.09, ease: [0.22, 1, 0.36, 1] }}
+      className="glass rounded-glass p-7 transition-transform duration-500 hover:-translate-y-1"
+      {...glass.props}
+    >
+      {glass.layers}
+      <span className="text-xs font-semibold tabular-nums tracking-widest text-ink-400">
+        {item.index}
+      </span>
+      <h3 className="mt-5 text-2xl text-ink-900">{item.title}</h3>
+      <p className="mt-3 text-[15px] leading-relaxed text-ink-700">{item.text}</p>
+    </motion.article>
+  )
+}
+
 export function Story() {
   return (
     <Section
@@ -29,20 +52,7 @@ export function Story() {
     >
       <div className="grid gap-3 md:grid-cols-3">
         {PRINCIPLES.map((item, i) => (
-          <motion.article
-            key={item.title}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.7, delay: i * 0.09, ease: [0.22, 1, 0.36, 1] }}
-            className="glass rounded-glass p-7 transition-transform duration-500 hover:-translate-y-1"
-          >
-            <span className="text-xs font-semibold tabular-nums tracking-widest text-ink-400">
-              {item.index}
-            </span>
-            <h3 className="mt-5 text-2xl text-ink-900">{item.title}</h3>
-            <p className="mt-3 text-[15px] leading-relaxed text-ink-700">{item.text}</p>
-          </motion.article>
+          <Principle key={item.title} item={item} index={i} />
         ))}
       </div>
 

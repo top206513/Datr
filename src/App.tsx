@@ -1,5 +1,6 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Atmosphere } from '@/components/Atmosphere'
+import { GlassStage } from '@/components/GlassStage'
 import { Checklist } from '@/components/Checklist'
 import { Countdown } from '@/components/Countdown'
 import { Footer } from '@/components/Footer'
@@ -9,6 +10,8 @@ import { MapExplorer } from '@/components/MapExplorer'
 import { MusicPlayer } from '@/components/MusicPlayer'
 import { Story } from '@/components/Story'
 import { Section } from '@/components/ui/Section'
+import { GlassModeContext } from '@/gl/context'
+import { supportsWebGL } from '@/gl/GlassRenderer'
 import { LOCATIONS } from '@/data/locations'
 import { useTilt } from '@/hooks/useGlass'
 import { usePersistentState } from '@/hooks/usePersistentState'
@@ -24,6 +27,17 @@ const INITIAL_PLAN: PlannedDate = {
 
 export default function App() {
   useTilt()
+
+  // Сцена включается, если WebGL есть; при потере контекста падаем на CSS
+  const [stage, setStage] = useState(supportsWebGL)
+
+  useEffect(() => {
+    document.documentElement.toggleAttribute('data-glass-gl', stage)
+  }, [stage])
+
+  const handleStage = useCallback((ok: boolean) => {
+    if (!ok) setStage(false)
+  }, [])
 
   const [plan, setPlan] = usePersistentState<PlannedDate>(STORAGE_KEYS.plan, INITIAL_PLAN)
   const [favorites, setFavorites] = usePersistentState<string[]>(STORAGE_KEYS.favorites, [])
@@ -79,8 +93,8 @@ export default function App() {
   const resetChecked = useCallback(() => setChecked([]), [setChecked])
 
   return (
-    <>
-      <Atmosphere />
+    <GlassModeContext.Provider value={stage}>
+      {stage ? <GlassStage onReady={handleStage} /> : <Atmosphere />}
       <Header />
 
       <main>
@@ -120,6 +134,6 @@ export default function App() {
 
       <Footer />
       <MusicPlayer />
-    </>
+    </GlassModeContext.Provider>
   )
 }

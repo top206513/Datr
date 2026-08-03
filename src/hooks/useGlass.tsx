@@ -1,16 +1,29 @@
-import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { GlassModeContext } from '@/gl/context'
+import { registerSurface } from '@/gl/registry'
 import {
   buildDisplacementMap,
   channelMatrix,
   supportsRefraction,
   tuneGlass,
 } from '@/lib/liquidGlass'
+import { startTilt } from '@/lib/tilt'
 
 interface GlassOptions {
   /** Радиус скругления элемента, px — по нему строится кривая линзы */
   radius?: number
-  /** Отключить рефракцию (например, для мелких повторяющихся элементов) */
+  /** Отключить стекло (например, для мелких повторяющихся элементов) */
   enabled?: boolean
+  /**
+   * Поверхность висит над содержимым страницы, а не над фоном.
+   * WebGL не видит пиксели DOM под собой, поэтому такие элементы остаются
+   * на backdrop-filter — иначе они перестанут показывать текст за собой.
+   */
+  overlay?: boolean
+  /** Плотность материала, 0–1 */
+  tint?: number
+  /** Толщина стекла, px — насколько глубоко уходит линза от кромки */
+  thickness?: number
 }
 
 /** Крупная панель размывает фон сильнее — это и читается как толщина стекла. */
@@ -32,12 +45,27 @@ const quantize = (value: number) => Math.round(value / QUANTUM) * QUANTUM
  * потому что стекло нужно на самых разных узлах: motion.div, article, a,
  * form — и подменять им тег было бы неудобно.
  */
-export function useGlass({ radius = 28, enabled = true }: GlassOptions = {}) {
+export function useGlass({
+  radius = 28,
+  enabled = true,
+  overlay = false,
+  tint = 0.4,
+  thickness = 34,
+}: GlassOptions = {}) {
   const id = useId().replace(/[^a-zA-Z0-9]/g, '')
   const ref = useRef<HTMLElement | null>(null)
   const [size, setSize] = useState<{ w: number; h: number } | null>(null)
 
-  const active = enabled && supportsRefraction()
+  // Поверхности на фоне отдаёт шейдер, всё остальное — SVG-фильтр
+  const onStage = useContext(GlassModeContext) && enabled && !overlay
+  const active = enabled && !onStage && supportsRefraction()
+
+  useEffect(() => {
+    const node = ref.current
+    if (!onStage || !node) return
+
+    return registerSurface({ el: node, radius, tint, thickness })
+  }, [onStage, radius, tint, thickness])
 
   useLayoutEffect(() => {
     const node = ref.current
@@ -140,13 +168,15 @@ export function useGlass({ radius = 28, enabled = true }: GlassOptions = {}) {
 
   const props = {
     ref: ref as React.Ref<never>,
+    'data-gl-surface': onStage ? '' : undefined,
     'data-refracting': filter ? '' : undefined,
     style: chain
       ? ({ backdropFilter: chain, WebkitBackdropFilter: chain } as React.CSSProperties)
       : undefined,
   }
 
-  const layers = (
+  // На сцене все слои материала рисует шейдер — в DOM ничего не нужно
+  const layers = onStage ? null : (
     <>
       {filter}
       <span aria-hidden className="lg-specular" />
@@ -157,76 +187,7 @@ export function useGlass({ radius = 28, enabled = true }: GlassOptions = {}) {
   return { props, layers, refracting: Boolean(filter) }
 }
 
-/**
- * Блики живые: их положение зависит от того, куда «наклонён» экран.
- * На телефоне это гироскоп, на десктопе — курсор; если сигнала нет,
- * свет медленно дрейфует сам, чтобы стекло не выглядело плоским.
- */
+/** Подписывает приложение на общий цикл наклона (блики CSS и шейдера). */
 export function useTilt() {
-  useEffect(() => {
-    const root = document.documentElement
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-    let targetX = 0
-    let targetY = 0
-    let currentX = 0
-    let currentY = 0
-    let lastInput = 0
-    let frame = 0
-    const start = performance.now()
-
-    const clamp = (v: number) => Math.max(-1, Math.min(1, v))
-
-    const onPointer = (e: PointerEvent) => {
-      lastInput = performance.now()
-      targetX = clamp((e.clientX / window.innerWidth - 0.5) * 2)
-      targetY = clamp((e.clientY / window.innerHeight - 0.5) * 2)
-    }
-
-    const onOrientation = (e: DeviceOrientationEvent) => {
-      if (e.gamma === null || e.beta === null) return
-      lastInput = performance.now()
-      targetX = clamp(e.gamma / 45)
-      targetY = clamp((e.beta - 45) / 45)
-    }
-
-    const tick = (now: number) => {
-      // Нет ни курсора, ни гироскопа — свет дышит сам
-      if (now - lastInput > 2500) {
-        const t = (now - start) / 5200
-        targetX = Math.sin(t) * 0.55
-        targetY = Math.cos(t * 0.78) * 0.4
-      }
-
-      currentX += (targetX - currentX) * 0.06
-      currentY += (targetY - currentY) * 0.06
-
-      root.style.setProperty('--lg-tx', currentX.toFixed(3))
-      root.style.setProperty('--lg-ty', currentY.toFixed(3))
-      // Угол наклона задаёт, с какой стороны светится ободок
-      root.style.setProperty(
-        '--lg-a',
-        ((Math.atan2(currentY, currentX) * 180) / Math.PI - 90).toFixed(1),
-      )
-
-      frame = requestAnimationFrame(tick)
-    }
-
-    if (reduced) {
-      root.style.setProperty('--lg-tx', '0')
-      root.style.setProperty('--lg-ty', '0')
-      root.style.setProperty('--lg-a', '-45')
-      return
-    }
-
-    window.addEventListener('pointermove', onPointer, { passive: true })
-    window.addEventListener('deviceorientation', onOrientation)
-    frame = requestAnimationFrame(tick)
-
-    return () => {
-      window.removeEventListener('pointermove', onPointer)
-      window.removeEventListener('deviceorientation', onOrientation)
-      cancelAnimationFrame(frame)
-    }
-  }, [])
+  useEffect(() => startTilt(), [])
 }

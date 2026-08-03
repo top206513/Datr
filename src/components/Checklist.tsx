@@ -139,6 +139,68 @@ function Item({
   )
 }
 
+function GroupCard({
+  group,
+  index,
+  items,
+  checked,
+  onToggle,
+  onRemove,
+}: {
+  group: ChecklistGroup
+  index: number
+  items: ChecklistItem[]
+  checked: string[]
+  onToggle: (id: string) => void
+  onRemove: (id: string) => void
+}) {
+  const glass = useGlass({ radius: 28 })
+  const meta = GROUP_META[group]
+  const done = items.filter((item) => checked.includes(item.id)).length
+  const complete = items.length > 0 && done === items.length
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.65, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+      className="glass flex flex-col rounded-glass p-4 sm:p-5"
+      {...glass.props}
+    >
+      {glass.layers}
+      <div className="mb-4 flex items-start justify-between gap-3 px-1">
+        <div>
+          <h3 className="text-lg font-semibold tracking-tight text-ink-900">{meta.label}</h3>
+          <p className="mt-0.5 text-[12px] text-ink-500">{meta.caption}</p>
+        </div>
+        <span
+          className={clsx(
+            'shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium tabular-nums transition-colors duration-500',
+            complete ? 'bg-ink-900 text-cream-50' : 'bg-white/60 text-ink-500',
+          )}
+        >
+          {done}/{items.length}
+        </span>
+      </div>
+
+      <ul className="flex flex-1 flex-col gap-1">
+        <AnimatePresence initial={false}>
+          {items.map((item) => (
+            <Item
+              key={item.id}
+              item={item}
+              checked={checked.includes(item.id)}
+              onToggle={() => onToggle(item.id)}
+              onRemove={item.custom ? () => onRemove(item.id) : undefined}
+            />
+          ))}
+        </AnimatePresence>
+      </ul>
+    </motion.div>
+  )
+}
+
 export function Checklist({
   customItems,
   checked,
@@ -205,54 +267,17 @@ export function Checklist({
       }
     >
       <div className="grid gap-3 md:grid-cols-3">
-        {GROUP_ORDER.map((group, groupIndex) => {
-          const groupItems = items.filter((item) => item.group === group)
-          const groupDone = groupItems.filter((item) => checked.includes(item.id)).length
-          const meta = GROUP_META[group]
-          const complete = groupItems.length > 0 && groupDone === groupItems.length
-
-          return (
-            <motion.div
-              key={group}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.65, delay: groupIndex * 0.08, ease: [0.22, 1, 0.36, 1] }}
-              className="glass flex flex-col rounded-glass p-4 sm:p-5"
-            >
-              <div className="mb-4 flex items-start justify-between gap-3 px-1">
-                <div>
-                  <h3 className="text-lg font-semibold tracking-tight text-ink-900">
-                    {meta.label}
-                  </h3>
-                  <p className="mt-0.5 text-[12px] text-ink-500">{meta.caption}</p>
-                </div>
-                <span
-                  className={clsx(
-                    'shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium tabular-nums transition-colors duration-500',
-                    complete ? 'bg-ink-900 text-cream-50' : 'bg-white/60 text-ink-500',
-                  )}
-                >
-                  {groupDone}/{groupItems.length}
-                </span>
-              </div>
-
-              <ul className="flex flex-1 flex-col gap-1">
-                <AnimatePresence initial={false}>
-                  {groupItems.map((item) => (
-                    <Item
-                      key={item.id}
-                      item={item}
-                      checked={checked.includes(item.id)}
-                      onToggle={() => onToggle(item.id)}
-                      onRemove={item.custom ? () => onRemove(item.id) : undefined}
-                    />
-                  ))}
-                </AnimatePresence>
-              </ul>
-            </motion.div>
-          )
-        })}
+        {GROUP_ORDER.map((group, groupIndex) => (
+          <GroupCard
+            key={group}
+            group={group}
+            index={groupIndex}
+            items={items.filter((item) => item.group === group)}
+            checked={checked}
+            onToggle={onToggle}
+            onRemove={onRemove}
+          />
+        ))}
       </div>
 
       <form

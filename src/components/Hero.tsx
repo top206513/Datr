@@ -20,9 +20,9 @@ const fadeUp = {
 }
 
 export function Hero({ plan, location }: HeroProps) {
-  // Обложка висит над пустым градиентом — преломлять там нечего,
-  // поэтому у неё только материал и блик, без рефракции.
-  const cover = useGlass({ radius: 36, enabled: false })
+  // За обложкой только фон: шейдер преломляет его честно, а SVG-фильтр
+  // на гладком градиенте рисовал бы «плато», поэтому там стекло без линзы.
+  const cover = useGlass({ radius: 36, tint: 0.34 })
 
   return (
     <section

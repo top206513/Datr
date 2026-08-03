@@ -33,7 +33,7 @@ export function LocationDialog({
   onToggleFavorite,
 }: LocationDialogProps) {
   const closeRef = useRef<HTMLButtonElement>(null)
-  const glass = useGlass({ radius: 36 })
+  const glass = useGlass({ radius: 36, overlay: true })
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
